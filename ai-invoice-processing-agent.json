@@ -1,0 +1,191 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Invoice Processing Form",
+        "formDescription": "Upload your invoice PDF to extract data",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload Invoice",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "afee7c9d-6c8a-43e4-ab64-6475f4d49721",
+      "name": "On form submission",
+      "webhookId": "0aca7220-7927-49b2-bd28-a5a3629da63c"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "responses": {
+          "values": [
+            {
+              "type": "file",
+              "fileType": "base64",
+              "binaryPropertyName": "Upload_Invoice",
+              "fileName": "Invoice PDF.pdf"
+            },
+            {
+              "content": "Extract Invoice Number, Date, Vendor Name, Total Amount, and Line Items from this file in JSON format."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2aa7926e-4a73-4dc5-9332-ebfffd10202e",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1QUsnuW7wLRs0yYHLtt8b7sdmH9OB6S6JgErO1DcWNO0",
+          "mode": "list",
+          "cachedResultName": "Invoice Data HubInvoice Number",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QUsnuW7wLRs0yYHLtt8b7sdmH9OB6S6JgErO1DcWNO0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QUsnuW7wLRs0yYHLtt8b7sdmH9OB6S6JgErO1DcWNO0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $json.output[0].content[0].text.split('Invoice Number\": \"')[1].split('\"')[0] }}",
+            "Date": "={{ $json.output[0].content[0].text.split('Date\": \"')[1].split('\"')[0] }}",
+            "Vendor Name": "={{ $json.output[0].content[0].text.split('Vendor Name\": \"')[1].split('\"')[0] }}",
+            "Total Amount": "={{ $json.output[0].content[0].text.split('Total Amount\": \"')[1].split('\"')[0] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor Name",
+              "displayName": "Vendor Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        592,
+        0
+      ],
+      "id": "b83620c4-d112-48d7-87d9-326c59d8a032",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gzYVbOKY0B4Mhkfi",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "343ae2ae-9943-4f7e-b945-1bda637ee7ed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f20023135a5e3c9035426a71e16c581804b0a266f3e8773816b6a8d9ecae683e"
+  },
+  "nodeGroups": [],
+  "id": "SImTFCJFGiRM6SDC",
+  "tags": []
+}
